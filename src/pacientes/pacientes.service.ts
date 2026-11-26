@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -25,15 +24,8 @@ export class PacientesService {
     return date;
   }
 
-  async create(dto: CreatePacienteDto) {
+  create(dto: CreatePacienteDto) {
     const birthDate = this.parseBirthDate(dto.birthDate);
-
-    const existingEmail = await this.prisma.patient.findUnique({
-      where: { email: dto.email },
-    });
-    if (existingEmail) {
-      throw new ConflictException('El correo ya está registrado');
-    }
 
     return this.prisma.patient.create({
       data: {
@@ -62,18 +54,7 @@ export class PacientesService {
     return patient;
   }
 
-  async update(id: number, dto: UpdatePacienteDto) {
-    await this.findOne(id);
-
-    if (dto.email) {
-      const existingEmail = await this.prisma.patient.findUnique({
-        where: { email: dto.email },
-      });
-      if (existingEmail && existingEmail.id !== id) {
-        throw new ConflictException('El correo ya está registrado');
-      }
-    }
-
+  update(id: number, dto: UpdatePacienteDto) {
     const { birthDate, ...rest } = dto;
     const data = {
       ...rest,
@@ -88,8 +69,7 @@ export class PacientesService {
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  remove(id: number) {
     return this.prisma.patient.delete({
       where: { id },
     });
