@@ -4,16 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreatePacientesDto } from './dto/create-pacientes.dto.js';
-import { UpdatePacientesDto } from './dto/update-pacientes.dto.js';
+import { CreatePacienteDto } from './dto/create-paciente.dto.js';
+import { UpdatePacienteDto } from './dto/update-paciente.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class PacientesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private parseBirthDate(value: string | Date): Date {
-    const date = value instanceof Date ? value : new Date(value);
+  private parseBirthDate(birthDate: string): Date {
+    const date = new Date(birthDate);
     if (Number.isNaN(date.getTime())) {
       throw new BadRequestException('Fecha de nacimiento inválida');
     }
@@ -25,15 +25,15 @@ export class PacientesService {
     return date;
   }
 
-  async create(dto: CreatePacientesDto) {
+  async create(dto: CreatePacienteDto) {
+    const birthDate = this.parseBirthDate(dto.birthDate);
+
     const existingEmail = await this.prisma.patient.findUnique({
       where: { email: dto.email },
     });
     if (existingEmail) {
       throw new ConflictException('El correo ya está registrado');
     }
-
-    const birthDate = this.parseBirthDate(dto.birthDate);
 
     return this.prisma.patient.create({
       data: {
@@ -62,7 +62,7 @@ export class PacientesService {
     return patient;
   }
 
-  async update(id: number, dto: UpdatePacientesDto) {
+  async update(id: number, dto: UpdatePacienteDto) {
     await this.findOne(id);
 
     if (dto.email) {

@@ -9,16 +9,16 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { MedicosService } from './medicos.service.js';
-import { CreateMedicosDto } from './dto/create-medicos.dto.js';
-import { UpdateMedicosDto } from './dto/update-medicos.dto.js';
+import { CreateMedicoDto } from './dto/create-medico.dto.js';
+import { UpdateMedicoDto } from './dto/update-medico.dto.js';
 
 @Controller('medicos')
 export class MedicosController {
   constructor(private readonly medicosService: MedicosService) {}
 
   @Post()
-  create(@Body() createMedicosDto: CreateMedicosDto) {
-    return this.medicosService.create(createMedicosDto);
+  create(@Body() dto: CreateMedicoDto) {
+    return this.medicosService.create(dto);
   }
 
   @Get()
@@ -34,9 +34,9 @@ export class MedicosController {
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateMedicosDto: UpdateMedicosDto,
+    @Body() dto: UpdateMedicoDto,
   ) {
-    return this.medicosService.update(id, updateMedicosDto);
+    return this.medicosService.update(id, dto);
   }
 
   @Delete(':id')
